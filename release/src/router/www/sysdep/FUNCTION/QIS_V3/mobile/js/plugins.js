@@ -117,7 +117,7 @@ function getScArray(mode){
 			"value": 2
 		},
 		"SC_dwb_mode": {
-			"wlArray": [{"title":"2.4 GHz / 5 GHz-1", "ifname":"0"}, {"title":"5 GHz-2", "ifname":"2"}],
+			"wlArray": [{"title":"2.4 GHz / 5 GHz-1", "ifname":"0"}, {"title":"5 GHz-2", "ifname": get_wl_unit_by_band("5G2")}],
 			"value": 1
 		},
 		"SC_all": {

@@ -405,6 +405,12 @@ function initial(){
 			}
 		}
 
+		if (based_modelid == "BRT-AC828" || based_modelid == "RT-AC82U" || based_modelid == "RT-AC58U"
+		 || based_modelid == "MAP-AC1300" || based_modelid == "MAP-AC2200" || based_modelid == "VZW-AC1300"
+		 || based_modelid == "RT-AC95U" || based_modelid == "GT-AXY16000" || based_modelid == "RT-AX89U" || based_modelid == "PL-AX56_XP4"
+		 || (based_modelid.substring(0,7) == "RT-AC59" && is_unit_5g(wl_unit_value))){
+			inputCtrl(document.form.wl_itxbf, 1);
+		}
 		if(based_modelid == "RT-AC88N" || based_modelid == "RT-AC88Q" 
 		|| based_modelid == "BRT-AC828" || based_modelid == "RT-AD7200" 
 		|| based_modelid == "RT-AC58U" || based_modelid.substring(0,7) == "RT-AC59" || based_modelid == "RT-AC82U" 
@@ -469,7 +475,7 @@ function initial(){
 		inputCtrl(document.form.wl_wme_apsd, 0);
 		inputCtrl(document.form.wl_atf, 0);
 		inputCtrl(document.form.wl_txbf, 0);
-		document.getElementById("wl_implicitxbf_field").style.display = "none";
+		document.getElementById("wl_itxbf_field").style.display = "none";
 		document.getElementById("wl_txPower_field").style.display = "none";
 	}
 	else{ // 2.4GHz
@@ -511,7 +517,14 @@ function initial(){
 				inputCtrl(document.form.wl_txbf, 1);
 				inputCtrl(document.form.wl_itxbf, 1);
 			}	
-		}	
+		}
+
+		if (based_modelid == "BRT-AC828" || based_modelid == "RT-AC82U" || based_modelid == "RT-AC58U"
+		 || based_modelid == "MAP-AC1300" || based_modelid == "MAP-AC2200" || based_modelid == "VZW-AC1300"
+		 || based_modelid == "RT-AC95U" || based_modelid == "GT-AXY16000" || based_modelid == "RT-AX89U" || based_modelid == "PL-AX56_XP4"
+		 || (based_modelid.substring(0,7) == "RT-AC59" && is_unit_5g(wl_unit_value))){
+			inputCtrl(document.form.wl_itxbf, 1);
+		}
 		if(based_modelid == "RT-AC88N" || based_modelid == "RT-AC88Q" 
 		|| based_modelid == "BRT-AC828" || based_modelid == "RT-AD7200" || based_modelid == "RT-AC58U" 
 		|| based_modelid == "RT-AC82U" || based_modelid == "MAP-AC1300" || based_modelid == "MAP-AC2200" 
@@ -656,14 +669,6 @@ function initial(){
 		inputCtrl(document.form.wl_atf, 0);
 	}
 	
-
-	if( based_modelid == "BRT-AC828" || based_modelid == "RT-AC82U" || based_modelid == "RT-AC58U" 
-	|| based_modelid == "MAP-AC1300" || based_modelid == "MAP-AC2200" || based_modelid == "VZW-AC1300" 
-	|| based_modelid == "RT-AC95U" || (based_modelid == "GT-AXY16000" && wl_unit_value != '3') || based_modelid == "RT-AX89U" || based_modelid == "PL-AX56_XP4"
-	|| (based_modelid.substring(0,7) == "RT-AC59" && is_unit_5g(wl_unit_value)))
-		document.getElementById("wl_implicitxbf_field").style.display = "";
-	else
-		document.getElementById("wl_implicitxbf_field").style.display = "none";
 
 	/* Extended NSS, 5G 160MHz only */
 	if((is_unit_5g(wl_unit_value) || is_unit_5g_2(wl_unit_value)) && document.form.wl_nmode_x.value != 2 && wl_bw_160_value == '1' && (based_modelid == "GT-AXY16000" || based_modelid == "RT-AX89U")){
@@ -2032,15 +2037,6 @@ function checkWLReady(){
 						</td>
 					</tr>					
 					<!-- RT-AC82U & RT-AC58U & 4G-AC53U & MAP-AC1300 & MAP-AC2200 & VZW-AC1300 & RT-AC95U -->
-					<tr id="wl_implicitxbf_field"  style="display:none">
-						<th><a class="hintstyle"><#WLANConfig11b_x_uniBeam#></a></th>
-						<td>
-							<select name="wl_implicitxbf" class="input_option">
-								<option value="0" <% nvram_match("wl_implicitxbf", "0","selected"); %>><#WLANConfig11b_WirelessCtrl_buttonname#></option>
-								<option value="1" <% nvram_match("wl_implicitxbf", "1","selected"); %>><#WLANConfig11b_WirelessCtrl_button1name#></option>
-							</select>
-						</td>
-					</tr>
 					<tr id="ext_nss_field" style="display:none">
 						<th><a class="hintstyle">Extended NSS</a></th>
 						<td>

@@ -745,9 +745,7 @@ extern void Set_AvgUptime(const char *value);
 extern int country_to_code(char *ctry, int band, char *code_str, size_t len);
 extern void acs_ch_weight_param(void);
 extern void get_stainfo(int bssidx, int vifidx);
-#if defined(RTAX89U)
 extern void pre_syspara(void);
-#endif
 #endif	/* RTCONFIG_QCA */
 
 #if defined(RTCONFIG_SOC_IPQ8074)
@@ -1083,7 +1081,7 @@ typedef struct {
 	int vid;
 	int dot1p;
 	int total_config;
-	char base_ifname[8];
+	char base_ifname[IFNAMSIZ];
 	int base_wan_unit;
 	int mcast;
 	int dscp;

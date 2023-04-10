@@ -4174,8 +4174,22 @@ int ate_dev_status(void)
 #ifdef RTCONFIG_BT_CONN
 	int have_bt_device = 1;
 #endif
-#if defined(RTCONFIG_BCMWL6) && defined(RTCONFIG_HAS_5G_2)
+#if defined(RTCONFIG_BCMWL6) && (defined(RTCONFIG_HAS_5G_2) || defined(RTCONFIG_HAS_6G_2))
 	int count_5g = 0;
+	int count_6g = 0;
+#ifdef RTCONFIG_QUADBAND
+#ifdef defined(RTCONFIG_HAS_6G_2)
+	char wlif_name[4][4] = {"2G", "5G", "6G", "6G2"};
+#else
+	char wlif_name[4][4] = {"2G", "5G", "5G2", "6G"};
+#endif
+#else // !RTCONFIG_QUADBAND
+#if defined(RTCONFIG_WIFI6E) || defined(RTCONFIG_WIFI7)
+	char wlif_name[3][4] = {"2G", "5G", "6G"};
+#else
+	char wlif_name[3][4] = {"2G", "5G", "5G2"};
+#endif
+#endif //RTCONFIG_QUADBAND
 #endif
 
 	memset(dev_chk_buf, 0, sizeof(dev_chk_buf));
@@ -4213,8 +4227,7 @@ int ate_dev_status(void)
 			result = 'X';
 			ret = 0;
 		}
-
-#if defined(RTCONFIG_BCMWL6) && defined(RTCONFIG_HAS_5G_2)
+#if defined(RTCONFIG_BCMWL6) && (defined(RTCONFIG_HAS_5G_2) || defined(RTCONFIG_HAS_6G_2))
 		switch(wl_get_band(word)) {
 			case WLC_BAND_2G:
 			    	len = snprintf(p, remain, ",2G=%c", result);
@@ -4229,9 +4242,17 @@ int ate_dev_status(void)
 				break;
 #if defined(RTCONFIG_WIFI6E)
 		    	case WLC_BAND_6G:
-				len = snprintf(p, remain, ",6G=%c", result);
+				if(!count_6g) {
+					len = snprintf(p, remain, ",6G=%c", result);
+					count_6g++;
+				}
+				else
+					len = snprintf(p, remain, ",6G2=%c", result);
 				break;
 #endif
+			default:
+				len = snprintf(p, remain, ",%s=%c", wlif_name[ate_wl_band-1], result);
+				break;
 		}
 #else
 		if(ate_wl_band == 1)

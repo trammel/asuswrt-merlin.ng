@@ -1065,6 +1065,44 @@ void websApply(webs_t wp, char_t *url)
 #endif
 }
 
+#if defined(RTCONFIG_NVRAM_ENCRYPT)
+
+int httpd_invalid_nvram_get_name(char *name)
+{
+#if defined(RTCONFIG_NVRAM_ENCRYPT)
+	if(strcmp(name, "pptpd_clientlist") == 0 || strcmp(name, "vpn_serverx_clientlist") == 0)
+		return 0;
+	else if(invalid_nvram_get_name(name))
+		return 1;
+	else
+		return 0;
+#endif
+	return 0;
+}
+
+int get_encrypt_list_value_to_md5(char *org_buf, char *buf, int len){
+
+	char *nv, *nvp, *b;
+	char *username_org, *passwd_org;
+	char md5_passwd[33] = {0}, tmp_buf[CKN_STR8192] = {0};
+
+	nv = nvp = strdup(org_buf);
+	if (nv) {
+		while ((b = strsep(&nvp, "<")) != NULL) {
+			if ((vstrsep(b, ">", &username_org, &passwd_org) != 2))
+				continue;
+
+			str_to_md5(passwd_org, strlen(passwd_org), md5_passwd);
+
+			snprintf(tmp_buf, sizeof(tmp_buf), "<%s>%s", username_org, md5_passwd);
+			strlcat(buf, tmp_buf, len);
+		}
+		free(nv);
+	}
+	return 0;
+}
+#endif
+
 /*
  * Example:
  * wl0_ipaddr=ASUS_2G
@@ -1084,6 +1122,9 @@ ej_wl_nvram_get(int eid, webs_t wp, int argc, char_t **argv)
 		websError(wp, 400, "Insufficient args\n");
 		return -1;
 	}
+
+	if(httpd_invalid_nvram_get_name(name))
+		return websWrite(wp, "");
 
 	for(i=0; i<(sizeof(wl_band_list)/sizeof(wl_band_list[0])) && wl_band_list[i][0] != '\0'; i++){
 		if(strncmp(name, wl_band_list[i], 3) == 0){
@@ -1127,11 +1168,11 @@ ej_nvram_get(int eid, webs_t wp, int argc, char_t **argv)
 	int ret = 0;
 //	char sid_dummy = "",
 	int from_app = 0;
-	char dec_passwd[4096];
 	char name_tmp[50] = {0};
 	char buffer[8000];
-
-	memset(dec_passwd, 0, sizeof(dec_passwd));
+#if defined(RTCONFIG_NVRAM_ENCRYPT)
+	char dec_passwd[CKN_STR8192] = {0};
+#endif
 
 	from_app = check_user_agent(user_agent);
 
@@ -1140,12 +1181,22 @@ ej_nvram_get(int eid, webs_t wp, int argc, char_t **argv)
 		return -1;
 	}
 
+	if(httpd_invalid_nvram_get_name(name))
+		return websWrite(wp, "");
+
 	if (strcmp(name, "modem_spn") == 0 && !nvram_invmatch(name, ""))
 		name = "modem_isp";
 
 	wl_nband_to_wlx(name, name_tmp, sizeof(name_tmp));
 
 	c = nvram_safe_get(name_tmp);
+
+#if defined(RTCONFIG_NVRAM_ENCRYPT)
+	if(strcmp(name, "pptpd_clientlist") == 0 || strcmp(name, "vpn_serverx_clientlist") == 0){
+		get_encrypt_list_value_to_md5(c, dec_passwd, sizeof(dec_passwd));
+		c = dec_passwd;
+	}
+#endif
 
 	for (; *c; c++) {
 		if (isprint(*c) &&
@@ -1290,6 +1341,9 @@ ej_nvram_get_ddns(int eid, webs_t wp, int argc, char_t **argv)
 		return -1;
 	}
 
+	if(httpd_invalid_nvram_get_name(name))
+		return websWrite(wp, "");
+
 	wl_nband_to_wlx(name, name_tmp, sizeof(name_tmp));
 
 	for (c = nvram_safe_get_x(sid, name_tmp); *c; c++) {
@@ -1330,6 +1384,9 @@ ej_nvram_get_f(int eid, webs_t wp, int argc, char_t **argv)
 		return -1;
 	}
 
+	if(httpd_invalid_nvram_get_name(field))
+		return websWrite(wp, "");
+
 	strlcpy(buf, nvram_safe_get_f(file, field), sizeof(buf));
 	for (c = buf; *c; c++) {
 		if (isprint(*c) &&
@@ -1356,6 +1413,9 @@ ej_nvram_show_chinese_char(int eid, webs_t wp, int argc, char_t **argv)
 			websError(wp, 400, "Insufficient args\n");
 		return -1;
 	}
+
+	if(httpd_invalid_nvram_get_name(name))
+		return websWrite(wp, "");
 
 	wl_nband_to_wlx(name, name_tmp, sizeof(name_tmp));
 
@@ -1593,6 +1653,9 @@ ej_nvram_get_list_x(int eid, webs_t wp, int argc, char_t **argv)
 		return -1;
 	}
 
+	if(httpd_invalid_nvram_get_name(name))
+		return websWrite(wp, "");
+
 	wl_nband_to_wlx(name, name_tmp, sizeof(name_tmp));
 
 	ret += websWrite(wp, nvram_get_list_x(sid, name_tmp, which));
@@ -1615,6 +1678,9 @@ ej_nvram_get_buf_x(int eid, webs_t wp, int argc, char_t **argv)
 		websError(wp, 400, "Insufficient args\n");
 		return -1;
 	}
+
+	if(httpd_invalid_nvram_get_name(name))
+		return websWrite(wp, "");
 
 	return 0;
 }
@@ -1671,6 +1737,9 @@ ej_find_word(int eid, webs_t wp, int argc, char_t **argv)
 			websError(wp, 400, "Insufficient args\n");
 		return -1;
 	}
+
+	if(httpd_invalid_nvram_get_name(name))
+		return websWrite(wp, "");
 
 	wl_nband_to_wlx(name, name_tmp, sizeof(name_tmp));
 
@@ -1744,6 +1813,9 @@ ej_nvram_char_to_ascii(int eid, webs_t wp, int argc, char_t **argv)
 	char *buf = tmp, *str;
 	int ret;
 	char buffer[8000];
+#if defined(RTCONFIG_NVRAM_ENCRYPT)
+	char dec_passwd[CKN_STR8192] = {0};
+#endif
 
 	if (ejArgs(argc, argv, "%s %s", &sid, &name) < 2) {
 		websError(wp, 400, "Insufficient args\n");
@@ -1753,9 +1825,20 @@ ej_nvram_char_to_ascii(int eid, webs_t wp, int argc, char_t **argv)
 	if (!strcmp(name, "vpndirector_rulelist"))
 		str = amvpn_get_policy_rules(-1, buffer, sizeof (buffer), VPNDIR_PROTO_NONE);
 	else {
+		if(httpd_invalid_nvram_get_name(name))
+			return websWrite(wp, "");
+
 		wl_nband_to_wlx(name, name_tmp, sizeof(name_tmp));
 
 		str = nvram_safe_get_x(sid, name_tmp);
+
+#if defined(RTCONFIG_NVRAM_ENCRYPT)
+		if(strcmp(name, "pptpd_clientlist") == 0 || strcmp(name, "vpn_serverx_clientlist") == 0){
+			get_encrypt_list_value_to_md5(str, dec_passwd, sizeof(dec_passwd));
+			str = dec_passwd;
+		}
+#endif
+
 	}
 
 	/* each char expands to %XX at max */
@@ -1773,6 +1856,7 @@ ej_nvram_char_to_ascii(int eid, webs_t wp, int argc, char_t **argv)
 #else
 	char_to_ascii_safe(buf, str, ret);
 #endif
+
 	ret = websWrite(wp, "%s", buf);
 
 	if (buf != tmp)
@@ -3837,7 +3921,19 @@ int nvram_check_and_set(char *name, char *value)
 }
 #endif
 
-int validate_apply(webs_t wp, json_object *root) {
+#if defined(RTCONFIG_MT798X) || defined(RTCONFIG_WLMODULE_MT7915D_AP) \
+ || defined(RTCONFIG_WIFI_QCN5024_QCN5054) || defined(RTCONFIG_QCA_AXCHIP)
+static inline void validate_apply_set_wl_var(char *nv, char *val)
+{
+	if (__validate_apply_set_wl_var)
+		__validate_apply_set_wl_var(nv, val);
+}
+#else
+static inline void validate_apply_set_wl_var(char *nv, char *val) { }
+#endif
+
+int validate_apply(webs_t wp, json_object *root)
+{
 	struct nvram_tuple *t;
 	char *value;
 	char name[64];
@@ -3974,6 +4070,7 @@ int validate_apply(webs_t wp, json_object *root) {
 					nvram_modified = 1;
 					nvram_modified_wl = 1;
 					_dprintf("set %s=%s\n", tmp, value);
+					validate_apply_set_wl_var(tmp, value);
 #if defined(RTCONFIG_NOTIFICATION_CENTER) && (defined(RTCONFIG_IFTTT) || defined(RTCONFIG_ALEXA) || defined(RTCONFIG_GOOGLE_ASST))
 					if(check_user_agent(user_agent) == FROM_IFTTT || check_user_agent(user_agent) == FROM_ALEXA)
 						IFTTT_DEBUG("[HTTPD] set %s=%s\n", tmp, value);
@@ -24732,23 +24829,27 @@ do_set_usb_bk_cgi(char *url, FILE *stream) {
 
 	strlcpy(wans_dualwan, nvram_safe_get("wans_dualwan"), sizeof(wans_dualwan));
 
-	if(!strcmp(usb_bk, "0")){
-		vstrsep(wans_dualwan, " ", &wan_primary, &wan_second);
-		if(wan_second != NULL && !strcmp(wan_second, "usb")){
-			nvram_set("wans_usb_bk","0");
-			nvram_set("wans_usb_bk_act","0");
-			notify_rc("stop_wan_if 1");
-			while(count < 30){
-				sleep(3);
-				if(nvram_get_int("wan1_state_t") == 0)
-					break;
-				else
-					count++;
+	if(!strcmp(nvram_safe_get("wans_usb_bk"), usb_bk))
+		goto FINISH;
+	else if(!strcmp(usb_bk, "0")){
+		nvram_set("wans_usb_bk","0");
+		if(nvram_get_int("wans_usb_bk_act") == 1){
+			vstrsep(wans_dualwan, " ", &wan_primary, &wan_second);
+			if(wan_second != NULL && !strcmp(wan_second, "usb")){
+				nvram_set("wans_usb_bk_act","0");
+				notify_rc("stop_wan_if 1");
+				while(count < 30){
+					sleep(3);
+					if(nvram_get_int("wan1_state_t") == 0)
+						break;
+					else
+						count++;
+				}
+				snprintf(wans_dualwan_tmp, sizeof(wans_dualwan_tmp), "%s none", wan_primary);
+				nvram_set("wans_dualwan", wans_dualwan_tmp);
 			}
-			snprintf(wans_dualwan_tmp, sizeof(wans_dualwan_tmp), "%s none", wan_primary);
-			nvram_set("wans_dualwan", wans_dualwan_tmp);
-			httpd_nvram_commit();
 		}
+		httpd_nvram_commit();
 	}else if(!strcmp(usb_bk, "1")){
 		nvram_set("wans_usb_bk","1");
 		httpd_nvram_commit();

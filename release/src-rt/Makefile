@@ -486,14 +486,7 @@ default:
 
 ifeq ($(HND_ROUTER),y)
 cfe_sysdep:
-	if [ "$(BCM_502L07P2)" = "y" ] && [ -d "$(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME).502l07p2" ]; then \
-		cp -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME).502l07p2/cfe${BRCM_CHIP}.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \
-		cp -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME).502l07p2/cfe${BRCM_CHIP}ram.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \
-		cp -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME).502l07p2/cfe${BRCM_CHIP}rom.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \
-		if [ -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME).502l07p2/precfe${BRCM_CHIP}rom.bin ]; then \
-			cp -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME).502l07p2/precfe${BRCM_CHIP}rom.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \
-		fi; \
-	elif [ -d $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME) ]; then \
+	if [ -d $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME) ]; then \
 		if [ "$(BCM_MFG)" = "y" ] && [ "$(BUILD_NAME)" = "RT-AX82U" ]; then \
 			cp -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME)_mfg/cfe${BRCM_CHIP}.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \
 			cp -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/$(BUILD_NAME)_mfg/cfe${BRCM_CHIP}ram.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \
@@ -536,7 +529,13 @@ cfe_sysdep:
 		fi; \
 	elif [ -d $(SRCBASE)/../../../../../../../targets/cfe/prebuilt ]; then \
 		cp -f $(SRCBASE)/../../../../../../../targets/cfe/prebuilt/cfe* $(SRCBASE)/../../../../../../../targets/cfe/. ; \
-		cp -f $(SRCBASE)/../../../../../../../targets/cfe/prebuilt/precfe* $(SRCBASE)/../../../../../../../targets/cfe/. ; \
+		if [ "${BRCM_CHIP}" = "4908" ]; then \
+			if [ -f $(SRCBASE)/../../../../../../../targets/cfe/prebuilt/precfe4908rom.bin ]; then \
+				cp -f $(SRCBASE)/../../../../../../../targets/cfe/prebuilt/precfe4908rom.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \
+			fi; \
+		else \
+			cp -f $(SRCBASE)/../../../../../../../targets/cfe/prebuilt/precfe* $(SRCBASE)/../../../../../../../targets/cfe/. ; \
+		fi; \
 	else \
 		cp -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/default/cfe4908.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \
 		cp -f $(SRCBASE)/../../../../../../../targets/cfe/sysdeps/default/cfe4908ram.bin $(SRCBASE)/../../../../../../../targets/cfe/. ; \

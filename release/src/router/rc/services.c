@@ -5082,6 +5082,34 @@ asusddns_reg_domain(int reg)
 	return ret;
 }
 
+void
+clean_ddns(void)
+{
+	nvram_set("ddns_enable_x", "0");
+	nvram_set("ddns_server_x", "");
+	nvram_set("ddns_server_x_old", "");
+	nvram_set("ddns_hostname_x", "");
+	nvram_set("ddns_hostname_old", "");
+	nvram_set("ddns_cache", "");
+	nvram_set("ddns_ipaddr", "");
+#ifdef RTCONFIG_IPV6
+	nvram_set("ddns_ipv6_ipaddr", "");
+#endif
+#ifdef RTCONFIG_ACCOUNT_BINDING
+	nvram_set("ddns_replace_status", "0");
+#endif
+	stop_ddns();
+#ifdef RTCONFIG_LETSENCRYPT
+	if (nvram_get_int("le_enable") == 1) {
+		nvram_set("le_enable", "0");
+		unlink("/jffs/cert.tgz");
+		stop_httpd();
+		start_httpd();
+	}
+#endif
+	nvram_commit();
+}
+
 int
 asusddns_unregister(void)
 {
@@ -9126,7 +9154,7 @@ void chilli_config(void)
 	//sprintf(chilli_url, "https://%s/Uam", lan_ip);
 	sprintf(chilli_url, "%s://%s:8083/FreeUam", nvram_safe_get("chilli_protocol"), lan_ip);
 	fprintf(fp, "uamserver %s\n", chilli_url);
-	memset(domain, 0, sizeof(domain));
+	/*memset(domain, 0, sizeof(domain));
 	strcpy(domain, nvram_safe_get("brdName"));
 
 	if(strlen(domain) > 0 ){
@@ -9138,7 +9166,7 @@ void chilli_config(void)
 			fprintf(fp, "domain %s\n", domain);
 			fprintf(fp, "domaindnslocal\n");
 		}
-	}
+	}*/
 	fprintf(fp, "cmdsocketport %s\n", "42424");
 #ifdef RTCONFIG_IPV6
 	if (ipv6_enabled()) fprintf(fp, "ipv6\n");
@@ -9310,7 +9338,7 @@ void chilli_config_CP(void)
 	//sprintf(chilli_url, "https://%s/Uam", lan_ip);
 	sprintf(chilli_url, "%s://%s:8083/Uam", nvram_safe_get("cp_protocol"), lan_ip);
 	fprintf(fp, "uamserver %s\n", chilli_url);
-	memset(domain, 0, sizeof(domain));
+	/*memset(domain, 0, sizeof(domain));
 	strcpy(domain, nvram_safe_get("brdName"));
 
 	if(strlen(domain) > 0 ){
@@ -9322,7 +9350,7 @@ void chilli_config_CP(void)
 			fprintf(fp, "domain %s\n", domain);
 			fprintf(fp, "domaindnslocal\n");
 		}
-	}
+	}*/
 	fprintf(fp, "unixipc %s\n", "chilli-cp.ipc");
 	fprintf(fp, "cmdsocketport %s\n", "42425");
 #ifdef RTCONFIG_IPV6
@@ -13596,7 +13624,6 @@ again:
 #ifdef RTCONFIG_6RELAYD
 			stop_6relayd();
 #endif
-			stop_dhcp6c();
 #endif
 #ifdef RTCONFIG_TR069
 			stop_tr();
@@ -16044,6 +16071,10 @@ check_ddr_done:
 	else if(strcmp(script, "asusddns_unregister") == 0)
 	{
 		asusddns_unregister();
+	}
+	else if(strcmp(script, "clean_ddns") == 0)
+	{
+		clean_ddns();
 	}
 	else if (strcmp(script, "httpd") == 0)
 	{

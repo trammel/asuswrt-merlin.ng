@@ -3092,6 +3092,21 @@ static void __load_wifi_driver(int testmode)
 
 	/* update the ini nss info */
 	update_ini_nss_info(hk_ol_num);
+
+#if defined(RTCONFIG_WIFI_QCN5024_QCN5054) || defined(RTCONFIG_QCA_AXCHIP)
+	/* Target-Wake Time
+	 * Always use wl0_twt and make sure wlX_twt equal to each other due to all bands share same global.ini.
+	 * This controls "TWT Responder Support" of octet 10 of Extended Capabilities.
+	 */
+
+	if (nvram_match("wl0_twt", "1")) {
+		update_ini_file(GLOBAL_INI, "twt_enable=1");
+		update_ini_file(GLOBAL_INI, "bcast_twt_enable=1");
+	} else {
+		update_ini_file(GLOBAL_INI, "twt_enable=0");
+		update_ini_file(GLOBAL_INI, "bcast_twt_enable=0");
+	}
+#endif
 #endif	/* RTCONFIG_GLOBAL_INI */
 
 #if defined(RTCONFIG_WIFI_QCA9990_QCA9990) || \

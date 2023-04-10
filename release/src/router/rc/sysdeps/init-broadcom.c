@@ -2006,6 +2006,25 @@ void init_switch_pre()
 	if(strcmp(get_productid(), "RT-AX86S"))
 		system("ethswctl -cpause -n1 -p7 -v2");
 #endif
+#elif defined(GTAX6000)
+	system("ethswctl -c pause -p 0 -v 2");
+	system("ethswctl -c pause -p 1 -v 2");
+	system("ethswctl -c pause -p 2 -v 2");
+	system("ethswctl -c pause -p 3 -v 2");
+	system("ethswctl -c pause -p 5 -v 2");
+	system("ethswctl -c pause -p 6 -v 2");
+#elif defined(RTAX58U_V2) || defined(RTAX3000N) || defined(BR63)
+	system("ethswctl -c pause -p 0 -v 2");
+#elif defined(TUFAX3000_V2) || defined(RTAXE7800)
+	system("ethswctl -c pause -p 0 -v 2");
+	system("ethswctl -c pause -p 8 -v 2");
+#elif defined(RTAX82U_V2) || defined(TUFAX5400_V2) || defined(RTAX5400)
+	system("ethswctl -c pause -p 0 -v 2");
+	system("ethswctl -c pause -p 1 -v 2");
+	system("ethswctl -c pause -p 2 -v 2");
+	system("ethswctl -c pause -p 3 -v 2");
+	system("ethswctl -c pause -p 4 -v 2");
+	system("ethswctl -c pause -p 8 -v 2");
 #endif
 
 	memset(ifnames, 0, sizeof(ifnames));
@@ -2907,6 +2926,84 @@ switch_exist(void)
 {
 	return 1;
 }
+
+void ext_vconfig(char *interface, int port_id)
+{
+	if(!interface)
+		return;
+#if defined(EBG19)
+	if(strncmp(interface, "ethsw_", 6) == 0)
+		eval("vconfig", "add", "eth5", port_id);
+	else
+#endif
+		eval("vconfig", "add", interface, port_id);
+}
+
+#if defined(EBG19)
+int get_extsw_port(char *ethsw_name)
+{
+	if(ethsw_name && strlen(ethsw_name) > 6)
+		return atoi(ethsw_name+6);
+	else
+		return -1;
+}
+
+void enable_ext_53134_8021qvlan()
+{
+	eval("ethswctl", "-c", "pmdioaccess", "-x", "0x3400", "-l", "2", "-d", "0xe3");
+}
+
+void add_ext_53134_vlan(int vlanid, char *untag_ifnames, char *fwd_ifnames)
+{
+	char vid[12], untag_bits[12], fwd_bits[12], vsetting[12];
+	int port=-1; 
+	unsigned int bits_set = 0;
+	char word[256], *next;
+
+	snprintf(vid, sizeof(vid)-1, "0x%x", vlanid);
+
+
+	foreach(word, fwd_ifnames, next) {
+		port = get_extsw_port(word);
+		if(port >= 0)
+			bits_set |= 1<<port;
+	}
+
+	foreach(word, untag_ifnames, next) {
+		port = get_extsw_port(word);
+		if(port >= 0)
+			bits_set |= 1<<port+9;
+	}
+
+	snprintf(vsetting, sizeof(vsetting), "0x%x", bits_set);
+
+	//_dprintf("%s, vid:[%s], fwd:[%s], untag:[%s], v_setting:(%x)[%s]\n", __func__, vid, fwd_ifnames, untag_ifnames, bits_set, vsetting);
+
+	eval("ethswctl", "-c", "pmdioaccess", "-x", "0x0581", "-l", "2", "-d", vid);
+	eval("ethswctl", "-c", "pmdioaccess", "-x", "0x0583", "-l", "4", "-d", vsetting);
+	eval("ethswctl", "-c", "pmdioaccess", "-x", "0x0580", "-l", "2", "-d", "0x80");
+}
+
+void read_ext_53134_vlan(int vlanid)
+{
+	char vid[12];
+
+	snprintf(vid, sizeof(vid)-1, "0x%x", vlanid);
+
+	eval("ethswctl", "-c", "pmdioaccess", "-x", "0x0581", "-l", "2", "-d", vid);
+	eval("ethswctl", "-c", "pmdioaccess", "-x", "0x0580", "-l", "2", "-d", "0x81");
+	eval("ethswctl", "-c", "pmdioaccess", "-x", "0x0583", "-l", "4");
+}
+
+/*
+void test_add_53134_vlan() 
+{
+        char arla_vtbl_entry[12];
+
+        add_ext_53134_vlan(500, "ethsw_0 ethsw_1", "ethsw_0 ethsw_1 ethsw_8", arla_vtbl_entry, sizeof(arla_vtbl_entry));
+}
+*/
+#endif
 
 #if defined(RTAX55) || defined(RTAX1800) || defined(RTAX58U_V2) || defined(RTAX3000N) || defined(BR63)
 /**

@@ -1210,6 +1210,10 @@ get_uplinkports_linkrate(char *ifname)
 		/*
 			7 3 2 1 0 s3 s2 s1 s0	W0 L1 L2 L3 L4 L5 L6 L7 L8
  		 */
+		/*
+			? P7 shall be for ebg19 eth5      :   Up   1 Gbps 00:1F:C6:27:1A:C9 ExtSw:P7 Lgcl:15 LAN
+					  ax88u eth5: <Ext sw port: 7> <Logical : 15> MAC : 7C:10:C9:E0:4F:C8
+		*/
 		extra_p0 = S_53134;
 		ports[0]=7; ports[1]=3; ports[2]=2; ports[3]=1; ports[4]=0;
 		ports[5]=3+extra_p0; ports[6]=2+extra_p0; ports[7]=1+extra_p0; ports[8]=extra_p0;

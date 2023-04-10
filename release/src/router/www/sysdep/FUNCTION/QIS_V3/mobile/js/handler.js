@@ -1129,11 +1129,14 @@ apply.wireless = function(){
 	}
 
 	if(systemVariable.productid == 'GT10' && qisPostData.smart_connect_x == '1'){
-		qisPostData.wl1_ssid = qisPostData.wl0_ssid;
-		qisPostData.wl1_wpa_psk = qisPostData.wl0_wpa_psk;
-		qisPostData.wl1_auth_mode_x = qisPostData.wl0_auth_mode_x;
-		qisPostData.wl1_crypto = qisPostData.wl0_crypto;
-		qisPostData.wl1_mfp = qisPostData.wl0_mfp;
+		if(dwb_mode != "1"){
+			qisPostData.wl1_ssid = qisPostData.wl0_ssid;
+			qisPostData.wl1_wpa_psk = qisPostData.wl0_wpa_psk;
+			qisPostData.wl1_auth_mode_x = qisPostData.wl0_auth_mode_x;
+			qisPostData.wl1_crypto = qisPostData.wl0_crypto;
+			qisPostData.wl1_mfp = qisPostData.wl0_mfp;
+		}
+
 		qisPostData.wl2_ssid = qisPostData.wl0_ssid;
 		qisPostData.wl2_wpa_psk = qisPostData.wl0_wpa_psk;
 		qisPostData.wl2_auth_mode_x = qisPostData.wl0_auth_mode_x;

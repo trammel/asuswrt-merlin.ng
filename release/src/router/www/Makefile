@@ -181,7 +181,7 @@ else
 ifeq ($(BUILD_NAME),GT-AX6000)
 	cd $(INSTALLDIR)/www/light_effect && mv sysdep_css/light_effect_GT-AX6000.css light_effect_sysdep.css
 endif
-ifeq ($(BUILD_NAME),GT-AXE16000)
+ifeq ($(BUILD_NAME),$(filter $(BUILD_NAME), GT-AXE16000 GT-AX11000_PRO))
 	cd $(INSTALLDIR)/www/light_effect && mv sysdep_css/light_effect_GT-AXE16000.css light_effect_sysdep.css
 endif
 ifeq ($(BUILD_NAME),GT10)

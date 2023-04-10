@@ -1204,6 +1204,29 @@ static int rctest_main(int argc, char *argv[])
 				set_gpio_rc(gpio, on?(act_low?0:1):(act_low?1:0));	
 			}
 		}
+		else if (strcmp(argv[1], "nvsize") == 0) {
+			printf("NVRAM_SIZE=%d, MAX=%d\n", NVRAM_SPACE, MAX_NVRAM_SPACE);
+		}
+		else if (strcmp(argv[1], "band") == 0) {
+			printf("band: %d\n", wl_get_band(argv[2]));
+		}
+		else if (strcmp(argv[1], "ch_band") == 0) {
+			printf("ch_band of %s: %d\n", argv[2], wl_get_chlist_band(argv[2]));
+		}
+#if defined(EBG19)
+		else if (strcmp(argv[1], "readv") == 0) {
+			read_ext_53134_vlan(atoi(argv[2]));
+		}
+		else if (strcmp(argv[1], "setv") == 0) {	/* rc setv 500 "ethsw_0 ethsw_1" "ethsw_0 ethsw_1" */
+			int vlanid = atoi(argv[2]);
+			char *untag_ifnames = argv[3];
+			char *fwd_ifnames = argv[4];
+
+			printf("add 53134 vlan:[%d][%s][%s]\n", vlanid, untag_ifnames, fwd_ifnames);
+			enable_ext_53134_8021qvlan();
+			add_ext_53134_vlan(vlanid, untag_ifnames, fwd_ifnames);
+		}
+#endif
 #if defined(TUFAX3000_V2) || defined(RTAXE7800) || defined(EBG19)
 		else if (strcmp(argv[1], "led_53134") == 0) {
 			bcm53134_led_control(atoi(argv[2]));
@@ -1321,6 +1344,12 @@ static int rctest_main(int argc, char *argv[])
 			max_txpwr = (double)get_wifi_maxpower(unit);
 
 			_dprintf("chk txpwr_target_max of unit-%d is %f ...\n", unit, max_txpwr);
+		}
+#endif
+#if defined(RTCONFIG_BCM_MFG)
+		else if (strcmp(argv[1], "ate_dev_status") == 0) {
+			ate_dev_status();
+			puts(nvram_safe_get("Ate_dev_status"));
 		}
 #endif
 		else {

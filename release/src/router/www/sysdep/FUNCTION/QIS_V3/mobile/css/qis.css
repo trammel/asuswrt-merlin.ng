@@ -1171,7 +1171,7 @@ a{
 			transform-origin: top;
 		}
 		.footerPadding{
-			margin-top: -450px;
+			/* margin-top: -450px; */
 			display: block;
 		}
 		@media screen and (max-width: 800px){

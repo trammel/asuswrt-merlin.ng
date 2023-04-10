@@ -903,6 +903,10 @@ extern int nvram_valid_get_int(const char *key, int min, int max, int def);
 #ifdef HND_ROUTER
 extern char *nvram_split_get(const char *key, char *buffer, int maxlen, int maxinst);
 extern int nvram_split_set(const char *key, char *value, int size, int maxinst);
+
+/* sysdeps/api-broadcom.c */
+extern int wl_get_band(char* wlif);
+extern int wl_get_chlist_band(char* wlif);
 #endif
 
 //	extern long nvram_xget_long(const char *name, long min, long max, long def);
@@ -3951,6 +3955,10 @@ extern int pw_enc_blen(const char *input);
 extern int pw_dec_len(const char *input);
 #endif
 #ifdef RTCONFIG_NVRAM_ENCRYPT
+struct INVALID_NVRAM_GET_TABLE {
+        char *name;
+        char *exclude_process;
+};
 #define NVRAM_ENC_LEN	1024
 #define NVRAM_ENC_MAXLEN	4096
 extern int set_enc_nvram(char *name, char *input, char *output);
@@ -3959,6 +3967,10 @@ extern int dec_nvram(char *name, char *input, char *output);
 extern int start_enc_nvram(void);
 extern int start_dec_nvram(void);
 extern int init_enc_nvram(void);
+extern int invalid_nvram_get_name(char *name);
+extern int invalid_nvram_get_program(char *name);
+extern int invalid_program_check(void);
+extern char *str_to_md5(const char *string, int length, char *out);
 #endif
 
 /* amas_utils.c */

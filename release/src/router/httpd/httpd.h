@@ -476,6 +476,7 @@ extern int check_AiMesh_whitelist(char *page);
 extern int ej_get_dnsprivacy_presets(int eid, webs_t wp, int argc, char_t **argv);
 #endif
 extern int check_cmd_injection_blacklist(char *para);
+extern void __validate_apply_set_wl_var(char *nv, char *val) __attribute__((weak));
 
 /* web-*.c */
 extern int ej_wl_status(int eid, webs_t wp, int argc, char_t **argv, int unit);

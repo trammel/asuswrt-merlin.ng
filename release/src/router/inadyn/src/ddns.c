@@ -775,7 +775,7 @@ static int update_alias_table(ddns_t *ctx)
 		if (RC_DDNS_RSP_RETRY_LATER == rc && !remember)
 			remember = rc;
 #ifdef ASUSWRT
-		if(nvram_match("ddns_return_code", "ddns_query") && rc != RC_OK)
+		if((nvram_match("ddns_return_code", "ddns_query") || nvram_match("ddns_return_code", ",0")) && rc != RC_OK)
 		{
 			switch (rc) {
 				/* Return these cases (define in check_error()) will retry again in Inadyn,
@@ -788,6 +788,7 @@ static int update_alias_table(ddns_t *ctx)
 				case RC_OS_INVALID_IP_ADDRESS:
 				case RC_DDNS_RSP_RETRY_LATER:
 				case RC_DDNS_INVALID_CHECKIP_RSP:
+				case RC_DDNS_RSP_NOTOK:
 					logit(LOG_WARNING, "Will retry again ...");
 					nvram_set("ddns_return_code", "ddns_query"); /* for Retry mechanism */
 					nvram_set("ddns_return_code_chk", "Time-out");
@@ -799,7 +800,6 @@ static int update_alias_table(ddns_t *ctx)
 					nvram_set("ddns_return_code_chk", "connect_fail");
 					break;
 				case RC_DDNS_RSP_NOHOST:
-				case RC_DDNS_RSP_NOTOK:
 					nvram_set("ddns_return_code", "Update failed");
 					nvram_set("ddns_return_code_chk", "Update failed");
 					break;

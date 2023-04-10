@@ -235,7 +235,7 @@ CFLAGS  += -I$(TOP)/protect_srv/include
 endif
 
 ifeq ($(RTCONFIG_BT_CONN),y)
-CFLAGS  += -I$(TOP)/bluez-5.41/lib
+CFLAGS  += -I$(TOP)/bluez-5.56/lib
 endif
 
 #CFLAGS += -DRC_BUILDTIME=$(shell date -d "now" +"%s")

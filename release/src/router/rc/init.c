@@ -18382,7 +18382,10 @@ NO_USB_CAP:
 		add_rc_support("pwrctrl");
 	}
 #endif
-#ifdef RTCONFIG_BCMARM
+#if defined(RTCONFIG_BCMARM) || defined(RTCONFIG_MT798X) \
+ || (defined(RTCONFIG_QCA) && (defined(RTCONFIG_SOC_IPQ40XX) || defined(RTCONFIG_SOC_IPQ50XX) \
+			    || defined(RTCONFIG_SOC_IPQ60XX) || defined(RTCONFIG_SOC_IPQ8074)))
+	/* QCA: SPF5+ */
 	add_rc_support("dis11b");
 #endif
 
@@ -19800,7 +19803,7 @@ def_boot_reinit:
 #ifdef RPAX56
 	reset_abmac();
 #endif
-#if defined(RTAX89U)
+#if defined(RTCONFIG_QCA)
 	pre_syspara();
 #endif
 
