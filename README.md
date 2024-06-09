@@ -1,5 +1,13 @@
-asuswrt-merlin New Gen (version 382.xx and higher)
+asuswrt-merlin-scramble New Gen (version 382.xx and higher)
 ==================================================
+
+This is an unsupported branch of Asuswrt-Merlin's firmware, with the [OpenVPN XOR Scramble patch](https://github.com/clayface/openvpn_xorpatch) applied.
+
+A single build was tested (rt-6.x.4708, rt-ac68u) which generated an image, which when flashed allowed an OpenVPN connection to be successfully made using the `scramble` options.
+
+The image was built using [Asuswrt-Merlin-Toolchains-Docker](https://github.com/gnuton/Asuswrt-Merlin-Toolchains-Docker) which greatly simplified the process.
+
+See commit 93ffaa0c47f37bf7c05d25e7f27a266f8f5ee7aa for the slightly modified patch.
 
 #### Support is available via the forums at [SNBForums](https://www.snbforums.com/forums/asuswrt-merlin.42/).
 
